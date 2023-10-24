@@ -84,7 +84,7 @@ class CalcParser(Parser):
         return [p.NUMBER0, p.NUMBER1, p.NUMBER2]
 
 if __name__ == '__main__':
-    data = input('Enter your expression: ')
+    data = input('Entre com sua Matriz: ')
     lexer = CalcLexer()
     parser = CalcParser()
     result = parser.parse(lexer.tokenize(data))
