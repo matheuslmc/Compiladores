@@ -1,14 +1,37 @@
 from sly import Lexer, Parser
+# Sly reference: https://sly.readthedocs.io/en/latest/
+
 
 class CalcLexer(Lexer):
-    tokens = {NUMBER, PLUS, MINUS, TIMES, COMMA, SEMICOLON, LBRACKET, RBRACKET, LPAREN, RPAREN, TRANSP, INV}
-    ignore = ' \t'
+    # Set of token names.   This is always required
+    tokens = {
+        NUMBER, PLUS, MINUS, COMMA, SEMICOLON, LBRACKET, RBRACKET,
+        LPAREN, RPAREN, TRANSP, INV
+    }
+
+    # Ignored pattern
     ignore_newline = r'\n+'
+
+    # Extra \n for newlines
+    def ignore_newline(self, t):
+        self.lineno += t.value.count('\n')
+
+    def error(self, t):
+        print("Illegal character '%s'" % t.value[0])
+        self.index += 1
+
+    @_(r'-?\d+')
+    def NUMBER(self, t):
+        # converte qualquer entrada numérica para valor inteiro
+        t.value = int(t.value)
+        return t
+
+    # String containing ignored characters between tokens
+    ignore = ' \t'
 
     # Regular expression rules for tokens
     PLUS = r'\+'
     MINUS = r'-'
-    TIMES = r'\*'
     COMMA = r','
     SEMICOLON = r';'
     LBRACKET = r'\['
@@ -16,27 +39,14 @@ class CalcLexer(Lexer):
     LPAREN = r'\('
     RPAREN = r'\)'
     TRANSP = r't'
-    INV= r'i'
-
-    @_(r'-?\d+')
-    def NUMBER(self, t):
-        t.value = int(t.value)
-        return t
-
-    def error(self, t):
-        print("Illegal character '%s'" % t.value[0])
-        self.index += 1
-
-    def ignore_newline(self, t):
-        self.lineno += t.value.count('\n')
+    INV = r'i'
 
 class CalcParser(Parser):
     tokens = CalcLexer.tokens
 
     precedence = (
         ('left', PLUS, MINUS),
-        ('left', TIMES),
-        ('left', TRANSP, INVERSE),
+        ('left', TRANSP, INV),
         ('left', LPAREN, RPAREN),
        
     )
@@ -60,6 +70,7 @@ class CalcParser(Parser):
         print('\n--- M ---')
         print(f"M = [{p.matrix[0]},{p.matrix[1]};{p.matrix[2]},{p.matrix[3]}]")
         return p.matrix 
+
 
     @_('TRANSP matrix')
     def matrix(self, p):
