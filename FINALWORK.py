@@ -1,7 +1,7 @@
 from sly import Lexer, Parser
 
 class CalcLexer(Lexer):
-    tokens = {NUMBER, PLUS, MINUS, TIMES, COMMA, SEMICOLON, LBRACKET, RBRACKET, LPAREN, RPAREN, TRANSP, INVERSE}
+    tokens = {NUMBER, PLUS, MINUS, TIMES, COMMA, SEMICOLON, LBRACKET, RBRACKET, LPAREN, RPAREN, TRANSP, INV}
     ignore = ' \t'
     ignore_newline = r'\n+'
 
@@ -16,7 +16,7 @@ class CalcLexer(Lexer):
     LPAREN = r'\('
     RPAREN = r'\)'
     TRANSP = r't'
-    INVERSE = r'i'
+    INV= r'i'
 
     @_(r'-?\d+')
     def NUMBER(self, t):
@@ -61,18 +61,6 @@ class CalcParser(Parser):
         print(f"M = [{p.matrix[0]},{p.matrix[1]};{p.matrix[2]},{p.matrix[3]}]")
         return p.matrix 
 
-    @_('M TIMES matrix')
-    def M(self, p):
-        print('\n--- M vezes ---')
-        result = (
-            (p.M[0] * p.matrix[0] + p.M[1] * p.matrix[2]),
-            (p.M[0] * p.matrix[1] + p.M[1] * p.matrix[3]),
-            (p.M[2] * p.matrix[0] + p.M[3] * p.matrix[2]),
-            (p.M[2] * p.matrix[1] + p.M[3] * p.matrix[3]),
-        )
-        print(f"M = [{result[0]},{result[1]};{result[2]},{result[3]}]")
-        return result
-
     @_('TRANSP matrix')
     def matrix(self, p):
         print('\n--- operação transposta ---')
@@ -80,7 +68,7 @@ class CalcParser(Parser):
         print(f"M = t[{result[0]},{result[1]};{result[2]},{result[3]}]")
         return result
 
-    @_('INVERSE matrix')
+    @_('INV matrix')
     def matrix(self, p):
         print('\n--- matriz inversa ---')
         print(f'M = i[{p.matrix[0]},{p.matrix[1]};{p.matrix[2]},{p.matrix[3]}]')
